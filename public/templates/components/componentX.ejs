@@ -1,11 +1,18 @@
 <%
 
-    const [data, setData] = await context.useRemote("https://jsonplaceholder.typicode.com/todos/1");
+    const [data, setData] = await context.useRemote("http://localhost:3000/random");
 
     const [state, setState] = context.useState(1);
 
+    function updateData(params) {
+        context.updateState( async () => {
+            await setData()
+            setState(state + 1);
+        });
+    }
+
     const onclick = context.delegate("click", () => {
-        setState(state + 1);
+        updateData();
     });
 %>
 
@@ -13,6 +20,8 @@
 <div <%- context.meta() %>>
     <h1>ComponentX <%= state %></h1>
     <button <%- onclick %>>Reload</button>
-    <h1><%- data %></h1>
+    <% for (let i = 0; i < data.length; i++) { %>
+        <p><%= data[i] %></p>
+    <% } %>
     <hr>
 </div>

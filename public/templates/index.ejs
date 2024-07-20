@@ -14,6 +14,7 @@
     <%- await context.component("ComponentX", {x: 1}) %>
     <%- await context.component("ComponentX", {}) %>
     <%- await context.component("ComponentX", {}) %>
+    <%- await context.app.hydrator("hydrator") %>
     <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.9/ejs.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="/main.js"></script>

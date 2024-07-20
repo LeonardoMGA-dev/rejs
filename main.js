@@ -9,22 +9,10 @@ const app = express();
 
 app.use(express.static('public'));
 
-// set the path to the views folder
-
-app.set('views', 'views');
-
 app.get('/', async (req, res) => {
     // render asynchronously
-    const app = new App({ components, ejs });
-    const html = await app.render('Index', {});
-    res.send(html);
-});
-
-app.get('/v2', async (req, res) => {
-    // render asynchronously
     const app = new App({ components, ejs, isServer: true });
-    const component = new Component({ id: 1, name: "Index", app});
-    const html = await component._render('Index', {});
+    const html = await app.render('Index', {});
     res.send(html);
 });
 

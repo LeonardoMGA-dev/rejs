@@ -11,8 +11,8 @@ class Component {
     }
 
     async useRemote(url, method = "GET", body, headers = {}) {
-        const id = this.hookId++;
-        if (!this.hooks[id]) {
+        const id = `${this.id}:${this.hookId++}`;
+        if (!this.app.stateTable[id]) {
             const response = await fetch(url, {
                 method,
                 body: JSON.stringify(body),
@@ -22,10 +22,10 @@ class Component {
                 },
             });
 
-            this.hooks[id] = await response.json();
+            this.app.stateTable[id] = await response.json();
         }
-        return [this.hooks[id], async (newValue) => {
-            this.hooks[id] = await fetch(url, {
+        return [this.app.stateTable[id], async (newValue) => {
+            this.app.stateTable[id] = await fetch(url, {
                 method,
                 body: JSON.stringify(newValue),
                 headers: {
@@ -33,20 +33,23 @@ class Component {
                     ...headers,
                 },
             }).then((response) => response.json());
-            this.refresh();
         }];
     }
 
     useState(initialValue) {
         // get the size of the hooks object
-        const id = this.hookId++;
-        if (!this.hooks[id]) {
-            this.hooks[id] = initialValue;
+        const id = `${this.id}:${this.hookId++}`;
+        if (!this.app.stateTable[id]) {
+            this.app.stateTable[id] = initialValue;
         }
-        return [this.hooks[id], (newValue) => {
-            this.hooks[id] = newValue;
-            this.refresh();
+        return [this.app.stateTable[id], (newValue) => {
+            this.app.stateTable[id] = newValue;
         }];
+    }
+
+    async updateState( onStateChange) {
+        await onStateChange();
+        this.refresh();
     }
 
     delegate(event, onDelegate) {
@@ -66,10 +69,8 @@ class Component {
 
     async _render() {
         this.hookId = 0;
-        console.log('Rendering template', this.name);
         let template = this.app.templates[this.name];
         if (!template) {
-            console.log('Fetching template', this.name);
             const path = this.app.components[this.name];
             const response = await fetch(path);
             template = await response.text();
