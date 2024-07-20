@@ -1,15 +1,13 @@
-<% 
-const componentId = "id1";
-const [state, setState] = app.useState("1", componentId, );
+<%
+    const [state, setState] = context.useState(1);
 
-const getData = app.useFunction( async () => {
-    return { state: 1 };
-});
-
+    const onclick = context.delegate("click", () => {
+        setState(state + 1);
+    });
 %>
 
-<div component="ComponentX" id=<%= componentId %> >
-    <h1><%- state %></h1>
 
-    <button onclick="setState('1', <%= state + 1 %>)">Reload</button>
+<div <%- context.meta() %>>
+    <h1>ComponentX <%= state %></h1>
+    <button <%- onclick %>>Reload</button>
 </div>

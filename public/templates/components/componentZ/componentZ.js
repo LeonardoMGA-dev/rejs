@@ -1,2 +1,0 @@
-const component = app.component()
-

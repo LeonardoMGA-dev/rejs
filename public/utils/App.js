@@ -1,7 +1,9 @@
 
+
 class App {
 
     constructor({
+        isServer = false,
         stateTable = {},
         components = {},
         ejs,
@@ -10,6 +12,7 @@ class App {
         this.components = components
         this.templates = {};
         this.ejs = ejs;
+        this.isServer = isServer;
     }
 
     setState(id, value) {
@@ -70,7 +73,6 @@ class App {
         }
     }
 
-    // Only server side
     async hydrator(id) {
         const json = JSON.stringify(this.stateTable);
         return `<meta id="${id}" content='${json}'>`;

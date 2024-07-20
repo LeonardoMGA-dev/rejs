@@ -2,6 +2,7 @@ import express from 'express';
 import ejs from 'ejs';
 import App from './public/utils/App.js';
 import components from './public/utils/components.js';
+import Component from './public/utils/Component.js';
 
 
 const app = express();
@@ -14,14 +15,22 @@ app.set('views', 'views');
 
 app.get('/', async (req, res) => {
     // render asynchronously
-    const app = new App({components, ejs});
+    const app = new App({ components, ejs });
     const html = await app.render('Index', {});
+    res.send(html);
+});
+
+app.get('/v2', async (req, res) => {
+    // render asynchronously
+    const app = new App({ components, ejs, isServer: true });
+    const component = new Component({ id: 1, name: "Index", app});
+    const html = await component._render('Index', {});
     res.send(html);
 });
 
 app.get('/random', async (req, res) => {
     // create a random list of numbers
-    const data = Array.from({length: 10}, () => Math.floor(Math.random() * 100));
+    const data = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100));
     res.json(data);
 });
 

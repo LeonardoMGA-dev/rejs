@@ -11,8 +11,9 @@
 
 <body>
     <h1>Index</h1>
-    <%- await app.render("ComponentX", {}) %>
-    <%- await app.hydrator("hydrator") %>
+    <%- await context.component("ComponentX", {}) %>
+    <%- await context.component("ComponentX", {}) %>
+    <%- await context.component("ComponentX", {}) %>
     <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.9/ejs.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="/main.js"></script>
