@@ -1,4 +1,7 @@
 <%
+
+    const [data, setData] = await context.useRemote("https://jsonplaceholder.typicode.com/todos/1");
+
     const [state, setState] = context.useState(1);
 
     const onclick = context.delegate("click", () => {
@@ -10,4 +13,6 @@
 <div <%- context.meta() %>>
     <h1>ComponentX <%= state %></h1>
     <button <%- onclick %>>Reload</button>
+    <h1><%- data %></h1>
+    <hr>
 </div>

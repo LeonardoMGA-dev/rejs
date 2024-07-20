@@ -7,10 +7,39 @@ class Component {
         this.app = app;
         this.children = {};
         this.hooks = {};
+        this.hookId = 0;
+    }
+
+    async useRemote(url, method = "GET", body, headers = {}) {
+        const id = this.hookId++;
+        if (!this.hooks[id]) {
+            const response = await fetch(url, {
+                method,
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...headers,
+                },
+            });
+
+            this.hooks[id] = await response.json();
+        }
+        return [this.hooks[id], async (newValue) => {
+            this.hooks[id] = await fetch(url, {
+                method,
+                body: JSON.stringify(newValue),
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...headers,
+                },
+            }).then((response) => response.json());
+            this.refresh();
+        }];
     }
 
     useState(initialValue) {
-        const id = this.hooks.size + 1;
+        // get the size of the hooks object
+        const id = this.hookId++;
         if (!this.hooks[id]) {
             this.hooks[id] = initialValue;
         }
@@ -32,10 +61,11 @@ class Component {
     }
 
     meta() {
-        return `id="${this.id}" component="${this.name}" class="component"`;
+        return `id="${this.id}" component="${this.name}" class="component" props='${JSON.stringify(this.props)}'`;
     }
 
     async _render() {
+        this.hookId = 0;
         console.log('Rendering template', this.name);
         let template = this.app.templates[this.name];
         if (!template) {
