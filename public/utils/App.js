@@ -13,6 +13,7 @@ class App {
         this.templates = {};
         this.ejs = ejs;
         this.isServer = isServer;
+        this.styles = {};
     }
 
     async render(entryPointComponent, props) {

@@ -4,11 +4,19 @@
 
     const [state, setState] = context.useState(1);
 
-    function updateData(params) {
-        context.updateState( async () => {
-            await setData()
-            setState(state + 1);
+    const [loading, setLoading] = context.useState(false);
+
+    async function updateData(params) {
+        await context.updateState( async () => {
+            setLoading(true);
         });
+        await context.updateState( async () => {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            //await setData()
+            setState(state + 1);
+            setLoading(false);
+        });
+
     }
 
     const onclick = context.delegate("click", () => {
@@ -17,9 +25,12 @@
 %>
 
 
-<div <%- context.meta() %>>
+<div>
+    <% if (loading) { %>
+        <p>Loading...</p>
+    <% } %>
     <h1>ComponentX <%= state %></h1>
-    <button <%- onclick %>>Reload</button>
+    <button class="primary-button" <%- onclick %>>Reload</button>
     <% for (let i = 0; i < data.length; i++) { %>
         <p><%= data[i] %></p>
     <% } %>

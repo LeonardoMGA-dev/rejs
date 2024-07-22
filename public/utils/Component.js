@@ -10,6 +10,45 @@ class Component {
         this.hookId = 0;
     }
 
+    setGlobalStyle(styles) {
+        if (this.app.isServer) {
+            return;
+        }
+        const storedStyles = this.app.styles[this.name];
+        if (storedStyles && storedStyles === styles) {
+            return;
+        }
+        // convert the styles object to css string
+        const css = this._convertToCss(styles);
+        // create a style element and append it to the document
+        this.app.styles[this.name] = styles;
+        $('<style>').text(css).appendTo(document.head)
+    }
+
+
+    _convertToCss(styles) {
+        return Object.keys(styles).map((key) => {
+            const value = styles[key];
+            if (typeof value === 'object') {
+                return `${key} { ${this._convertToCss(value)} }`;
+            }
+            return `${key}: ${value};`;
+        }).join('\n');
+    }
+
+    useStyle (styles) {
+        const id = `${this.id}:${this.hookId++}`;
+        const storedStyles = this.app.stateTable[id];
+        if (!storedStyles) {
+            this.app.stateTable[id] = styles;
+        }
+        const attribute = `style="${this._convertToCss(this.app.stateTable[id])}"`;
+        return [attribute, this.app.stateTable[id], (newStyles) => {
+            this.app.stateTable[id] = newStyles;
+            this.refresh();
+        }];
+    }
+
     async useRemote(url, method = "GET", body, headers = {}) {
         const id = `${this.id}:${this.hookId++}`;
         if (!this.app.stateTable[id]) {
@@ -63,8 +102,10 @@ class Component {
         return `id="${randomId}"`;
     }
 
-    meta() {
-        return `id="${this.id}" component="${this.name}" class="component" props='${JSON.stringify(this.props)}'`;
+    meta({className = ""} = {}) {
+        // verify if className is not undefined
+        const classes = className ? `component ${className}` : "component";
+        return `id="${this.id}" component="${this.name}" class="${classes}" props='${JSON.stringify(this.props)}'`;
     }
 
     async _render() {
@@ -78,13 +119,16 @@ class Component {
         }
         try {
             const html = await this.app.ejs.render(template, { ...this.props, context: this }, { async: true });
-            return html;
+            if (this.id === 1) {
+                return html;   
+            }
+            return `<div ${this.meta()} >${html}</div>`;
         } catch (error) {
             return `<div>Failed to render ${error}</div>`;
         }
     }
 
-    async component(name, props) {
+    async component(name, props = {}) {
         const id = Math.random().toString(36).substring(7);
         const component = new Component({ id, name, app: this.app, props });
         this.children[id] = component;

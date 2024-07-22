@@ -1,0 +1,16 @@
+<%
+    const [attr, style, setStyle] = context.useStyle({
+        "background-color": "blue",
+        "color": "white",
+        "border": "none",
+        "padding": "10px 20px",
+        "border-radius": "5px",
+        "cursor": "pointer"
+    });
+
+    const onclick = context.delegate("click", () => {
+        setStyle({...style, "background-color": "red"});
+    });
+
+%>
+<button <%- onclick %> class="primary-button" <%- attr %>><%= context.props.text %></button>
